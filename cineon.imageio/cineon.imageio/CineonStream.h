@@ -34,8 +34,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 #ifndef _CINEON_CINEONSTREAM_H
 #define _CINEON_CINEONSTREAM_H 1
+
 
 #include <cstdio>
 
@@ -45,144 +47,158 @@ namespace cineon {
  * \class InStream
  * \brief Input Stream for reading files
  */
-class InStream {
+class InStream
+{
 
-public:
-  /*!
-   * \enum Origin
-   * \brief file pointing positioning offset
-   */
-  enum Origin {
-    kStart,   //!< beginning of the file
-    kCurrent, //!< current file pointer
-    kEnd      //!< end of the file
-  };
+  public:
 
-  /*!
-   * \brief Constructor
-   */
-  InStream();
+	/*!
+	 * \enum Origin
+	 * \brief file pointing positioning offset
+	 */
+	enum Origin
+	{
+		kStart,							//!< beginning of the file
+		kCurrent,						//!< current file pointer
+		kEnd							//!< end of the file
+	};
 
-  /*!
-   * \brief Destructor
-   */
-  virtual ~InStream();
 
-  /*!
-   * \brief Open file
-   * \param fn File name
-   * \return success true/false
-   */
-  virtual bool Open(const char *fn);
+	/*!
+	 * \brief Constructor
+	 */
+	InStream();
 
-  /*!
-   * \brief Close file
-   */
-  virtual void Close();
+	/*!
+	 * \brief Destructor
+	 */
+	virtual ~InStream();
 
-  /*!
-   * \brief Rewind file pointer to beginning of file
-   */
-  virtual void Rewind();
+	/*!
+	 * \brief Open file
+	 * \param fn File name
+	 * \return success true/false
+	 */
+	virtual bool Open(const char * fn);
 
-  /*!
-   * \brief Read data from file
-   * \param buf data buffer
-   * \param size bytes to read
-   * \return number of bytes read
-   */
-  virtual size_t Read(void *buf, const size_t size);
+	/*!
+	 * \brief Close file
+	 */
+	virtual void Close();
 
-  /*!
-   * \brief Read data from file without any buffering as fast as possible
-   * \param buf data buffer
-   * \param size bytes to read
-   * \return number of bytes read
-   */
-  virtual size_t ReadDirect(void *buf, const size_t size);
+	/*!
+	 * \brief Rewind file pointer to beginning of file
+	 */
+	virtual void Rewind();
 
-  /*!
-   * \brief Query if end of file has been reached
-   * \return end of file true/false
-   */
-  virtual bool EndOfFile() const;
+	/*!
+	 * \brief Read data from file
+	 * \param buf data buffer
+	 * \param size bytes to read
+	 * \return number of bytes read
+	 */
+	virtual size_t Read(void * buf, const size_t size);
 
-  /*!
-   * \brief Seek to a position in the file
-   * \param offset offset from originating position
-   * \param origin originating position
-   * \return success true/false
-   */
-  virtual bool Seek(long offset, Origin origin);
 
-protected:
-  FILE *fp;
+	/*!
+	 * \brief Read data from file without any buffering as fast as possible
+	 * \param buf data buffer
+	 * \param size bytes to read
+	 * \return number of bytes read
+	 */
+	virtual size_t ReadDirect(void * buf, const size_t size);
+
+	/*!
+	 * \brief Query if end of file has been reached
+	 * \return end of file true/false
+	 */
+	virtual bool EndOfFile() const;
+
+	/*!
+	 * \brief Seek to a position in the file
+	 * \param offset offset from originating position
+	 * \param origin originating position
+	 * \return success true/false
+	 */
+	virtual bool Seek(long offset, Origin origin);
+
+  protected:
+	FILE *fp;
 };
+
+
 
 /*!
  * \class OutStream
  * \brief Output Stream for writing files
  */
-class OutStream {
+class OutStream
+{
 
-public:
-  /*!
-   * \enum Origin
-   * \brief file pointing positioning offset
-   */
-  enum Origin {
-    kStart,   //!< beginning of the file
-    kCurrent, //!< current file pointer
-    kEnd      //!< end of the file
-  };
+  public:
 
-  /*!
-   * \brief Constructor
-   */
-  OutStream();
+	/*!
+	 * \enum Origin
+	 * \brief file pointing positioning offset
+	 */
+	enum Origin
+	{
+		kStart,							//!< beginning of the file
+		kCurrent,						//!< current file pointer
+		kEnd							//!< end of the file
+	};
 
-  /*!
-   * \brief Destructor
-   */
-  virtual ~OutStream();
+	/*!
+	 * \brief Constructor
+	 */
+	OutStream();
 
-  /*!
-   * \brief Open file
-   * \param fn File name
-   * \return success true/false
-   */
-  virtual bool Open(const char *fn);
+	/*!
+	 * \brief Destructor
+	 */
+	virtual ~OutStream();
 
-  /*!
-   * \brief Close file
-   */
-  virtual void Close();
+	/*!
+	 * \brief Open file
+	 * \param fn File name
+	 * \return success true/false
+	 */
+	virtual bool Open(const char *fn);
 
-  /*!
-   * \brief Write data to file
-   * \param buf data buffer
-   * \param size bytes to write
-   * \return number of bytes written
-   */
-  virtual size_t Write(void *buf, const size_t size);
+	/*!
+	 * \brief Close file
+	 */
+	virtual void Close();
 
-  /*!
-   * \brief Seek to a position in the file
-   * \param offset offset from originating position
-   * \param origin originating position
-   * \return success true/false
-   */
-  virtual bool Seek(long offset, Origin origin);
+	/*!
+	 * \brief Write data to file
+	 * \param buf data buffer
+	 * \param size bytes to write
+	 * \return number of bytes written
+	 */
+	virtual size_t Write(void * buf, const size_t size);
 
-  /*!
-   * \brief Flush any buffers
-   */
-  virtual void Flush();
+	/*!
+	 * \brief Seek to a position in the file
+	 * \param offset offset from originating position
+	 * \param origin originating position
+	 * \return success true/false
+	 */
+	virtual bool Seek(long offset, Origin origin);
 
-protected:
-  FILE *fp;
+	/*!
+	 * \brief Flush any buffers
+	 */
+	virtual void Flush();
+
+
+  protected:
+	FILE *fp;
 };
 
-} // namespace cineon
+}
+
+
 
 #endif
+

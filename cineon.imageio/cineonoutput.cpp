@@ -30,73 +30,99 @@
 
 #include <cineon.imageio/Cineon.h>
 
-#include <OpenImageIO/fmath.h>
-#include <OpenImageIO/imageio.h>
 #include <OpenImageIO/typedesc.h>
+#include <OpenImageIO/imageio.h>
+#include <OpenImageIO/fmath.h>
 
 using namespace cineon;
 
 OIIO_PLUGIN_NAMESPACE_BEGIN
 
+
 class CineonOutput : public ImageOutput {
 public:
-  CineonOutput();
-  virtual ~CineonOutput();
-  virtual const char *format_name(void) const { return "cineon"; }
-  virtual bool supports(const std::string &feature) const {
-    // Support nothing nonstandard
-    return false;
-  }
-  virtual bool open(const std::string &name, const ImageSpec &spec,
-                    ImageOutput::OpenMode mode);
-  virtual bool close();
-  virtual bool write_scanline(int y, int z, TypeDesc format, const void *data,
-                              stride_t xstride);
+    CineonOutput ();
+    virtual ~CineonOutput ();
+    virtual const char * format_name (void) const { return "cineon"; }
+    virtual bool supports (const std::string &feature) const {
+        // Support nothing nonstandard
+        return false;
+    }
+    virtual bool open (const std::string &name, const ImageSpec &spec,
+                       ImageOutput::OpenMode mode);
+    virtual bool close ();
+    virtual bool write_scanline (int y, int z, TypeDesc format,
+                                 const void *data, stride_t xstride);
 
 private:
-  // Initialize private members to pre-opened state
-  void init(void) {}
+
+    // Initialize private members to pre-opened state
+    void init (void) {
+    }
 };
+
+
+
 
 // Obligatory material to make this a recognizeable imageio plugin:
 OIIO_PLUGIN_EXPORTS_BEGIN
 
-OIIO_EXPORT ImageOutput *cineon_output_imageio_create() {
-  return new CineonOutput;
-}
+OIIO_EXPORT ImageOutput *cineon_output_imageio_create () { return new CineonOutput; }
 
-// OIIO_EXPORT int cineon_imageio_version = OIIO_PLUGIN_VERSION;   // it's in
-// cineoninput.cpp
+// OIIO_EXPORT int cineon_imageio_version = OIIO_PLUGIN_VERSION;   // it's in cineoninput.cpp
 
-OIIO_EXPORT const char *cineon_output_extensions[] = {"cin", NULL};
+OIIO_EXPORT const char * cineon_output_extensions[] = {
+    "cin", NULL
+};
 
 OIIO_PLUGIN_EXPORTS_END
 
-CineonOutput::CineonOutput() { init(); }
 
-CineonOutput::~CineonOutput() {
-  // Close, if not already done.
-  close();
+
+CineonOutput::CineonOutput ()
+{
+    init ();
 }
 
-bool CineonOutput::open(const std::string &name, const ImageSpec &userspec,
-                        ImageOutput::OpenMode mode) {
-  error("Cineon writer is not implemented yet, please poke Leszek in the "
-        "mailing list");
-  return false;
+
+
+CineonOutput::~CineonOutput ()
+{
+    // Close, if not already done.
+    close ();
 }
 
-bool CineonOutput::close() {
-  init();      // Reset to initial state
-  return true; // How can we fail?
-               // Epicly. -- IneQuation
+
+
+bool
+CineonOutput::open (const std::string &name, const ImageSpec &userspec,
+                    ImageOutput::OpenMode mode)
+{
+    error ("Cineon writer is not implemented yet, please poke Leszek in the "
+           "mailing list");
+    return false;
 }
 
-bool CineonOutput::write_scanline(int y, int z, TypeDesc format,
-                                  const void *data, stride_t xstride) {
-  error("Cineon writer is not implemented yet, please poke Leszek in the "
-        "mailing list");
-  return false;
+
+
+bool
+CineonOutput::close ()
+{
+    init();  // Reset to initial state
+    return true;  // How can we fail?
+                  // Epicly. -- IneQuation
+}
+
+
+
+bool
+CineonOutput::write_scanline (int y, int z, TypeDesc format,
+                              const void *data, stride_t xstride)
+{
+    error ("Cineon writer is not implemented yet, please poke Leszek in the "
+           "mailing list");
+    return false;
 }
 
 OIIO_PLUGIN_NAMESPACE_END
+

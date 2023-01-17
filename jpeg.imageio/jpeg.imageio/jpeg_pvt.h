@@ -28,9 +28,11 @@
   (This is the Modified BSD License)
 */
 
+
 /////////////////////////////////////////////////////////////////////////////
 // Private definitions internal to the jpeg.imageio plugin
 /////////////////////////////////////////////////////////////////////////////
+
 
 #ifndef OPENIMAGEIO_JPEG_PVT_H
 #define OPENIMAGEIO_JPEG_PVT_H
@@ -46,7 +48,9 @@ extern "C" {
 #include "jpeglib.h"
 }
 
+
 OIIO_PLUGIN_NAMESPACE_BEGIN
+
 
 #define MAX_DATA_BYTES_IN_MARKER 65519L
 #define ICC_HEADER_SIZE 14
@@ -59,73 +63,79 @@ OIIO_PLUGIN_NAMESPACE_BEGIN
 #define JPEG_420_STR "4:2:0"
 #define JPEG_411_STR "4:1:1"
 
-static const int JPEG_444_COMP[6] = {1, 1, 1, 1, 1, 1};
-static const int JPEG_422_COMP[6] = {2, 1, 1, 1, 1, 1};
-static const int JPEG_420_COMP[6] = {2, 2, 1, 1, 1, 1};
-static const int JPEG_411_COMP[6] = {4, 1, 1, 1, 1, 1};
+static const int JPEG_444_COMP[6] = {1,1, 1,1, 1,1};
+static const int JPEG_422_COMP[6] = {2,1, 1,1, 1,1};
+static const int JPEG_420_COMP[6] = {2,2, 1,1, 1,1};
+static const int JPEG_411_COMP[6] = {4,1, 1,1, 1,1};
+
 
 class JpgInput : public ImageInput {
-public:
-  JpgInput() { init(); }
-  virtual ~JpgInput() { close(); }
-  virtual const char *format_name(void) const { return "jpeg"; }
-  virtual bool supports(const std::string &feature) {
-    return (feature == "exif" || feature == "iptc");
-  }
-  virtual bool valid_file(const std::string &filename) const;
-  virtual bool open(const std::string &name, ImageSpec &spec);
-  virtual bool open(const std::string &name, ImageSpec &spec,
-                    const ImageSpec &config);
-  virtual bool read_native_scanline(int y, int z, void *data);
-  virtual bool close();
-  const std::string &filename() const { return m_filename; }
-  void *coeffs() const { return m_coeffs; }
-  struct my_error_mgr {
-    struct jpeg_error_mgr pub; /* "public" fields */
-    jmp_buf setjmp_buffer;     /* for return to caller */
-    JpgInput *jpginput;        /* back pointer to *this */
-  };
-  typedef struct my_error_mgr *my_error_ptr;
+ public:
+    JpgInput () { init(); }
+    virtual ~JpgInput () { close(); }
+    virtual const char * format_name (void) const { return "jpeg"; }
+    virtual bool supports (const std::string &feature) {
+        return (feature == "exif"
+             || feature == "iptc");
+    }
+    virtual bool valid_file (const std::string &filename) const;
+    virtual bool open (const std::string &name, ImageSpec &spec);
+    virtual bool open (const std::string &name, ImageSpec &spec,
+                       const ImageSpec &config);
+    virtual bool read_native_scanline (int y, int z, void *data);
+    virtual bool close ();
+    const std::string &filename () const { return m_filename; }
+    void * coeffs () const { return m_coeffs; }
+    struct my_error_mgr {
+        struct jpeg_error_mgr pub;    /* "public" fields */
+        jmp_buf setjmp_buffer;        /* for return to caller */
+        JpgInput *jpginput;           /* back pointer to *this */
+    };
+    typedef struct my_error_mgr * my_error_ptr;
 
-  // Called by my_error_exit
-  void jpegerror(my_error_ptr myerr, bool fatal = false);
+    // Called by my_error_exit
+    void jpegerror (my_error_ptr myerr, bool fatal=false);
 
-private:
-  FILE *m_fd;
-  std::string m_filename;
-  int m_next_scanline; // Which scanline is the next to read?
-  bool m_raw;          // Read raw coefficients, not scanlines
-  bool m_fatalerr;     // JPEG reader hit a fatal error
-  struct jpeg_decompress_struct m_cinfo;
-  my_error_mgr m_jerr;
-  jvirt_barray_ptr *m_coeffs;
+ private:
+    FILE *m_fd;
+    std::string m_filename;
+    int m_next_scanline;      // Which scanline is the next to read?
+    bool m_raw;               // Read raw coefficients, not scanlines
+    bool m_fatalerr;          // JPEG reader hit a fatal error
+    struct jpeg_decompress_struct m_cinfo;
+    my_error_mgr m_jerr;
+    jvirt_barray_ptr *m_coeffs;
 
-  void init() {
-    m_fd = NULL;
-    m_raw = false;
-    m_fatalerr = false;
-    m_coeffs = NULL;
-    m_jerr.jpginput = this;
-  }
+    void init () {
+        m_fd = NULL;
+        m_raw = false;
+        m_fatalerr = false;
+        m_coeffs = NULL;
+        m_jerr.jpginput = this;
+    }
 
-  // Rummage through the JPEG "APP1" marker pointed to by buf, decoding
-  // IPTC (International Press Telecommunications Council) metadata
-  // information and adding attributes to spec.  This assumes it's in
-  // the form of an IIM (Information Interchange Model), which is actually
-  // considered obsolete and is replaced by an XML scheme called XMP.
-  void jpeg_decode_iptc(const unsigned char *buf);
+    // Rummage through the JPEG "APP1" marker pointed to by buf, decoding
+    // IPTC (International Press Telecommunications Council) metadata
+    // information and adding attributes to spec.  This assumes it's in
+    // the form of an IIM (Information Interchange Model), which is actually
+    // considered obsolete and is replaced by an XML scheme called XMP.
+    void jpeg_decode_iptc (const unsigned char *buf);
 
-  bool read_icc_profile(j_decompress_ptr cinfo, ImageSpec &spec);
+    bool read_icc_profile (j_decompress_ptr cinfo, ImageSpec& spec);
 
-  void close_file() {
-    if (m_fd)
-      fclose(m_fd); // N.B. the init() will set m_fd to NULL
-    init();
-  }
+    void close_file () {
+        if (m_fd)
+            fclose (m_fd);   // N.B. the init() will set m_fd to NULL
+        init ();
+    }
 
-  friend class JpgOutput;
+    friend class JpgOutput;
 };
+
+
 
 OIIO_PLUGIN_NAMESPACE_END
 
+
 #endif /* OPENIMAGEIO_JPEG_PVT_H */
+

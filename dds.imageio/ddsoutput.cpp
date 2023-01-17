@@ -28,15 +28,15 @@
   (This is the Modified BSD License)
 */
 
-#include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 
-#include <OpenImageIO/dassert.h>
-#include <OpenImageIO/fmath.h>
-#include <OpenImageIO/imageio.h>
-#include <OpenImageIO/typedesc.h>
 #include <dds.imageio/dds_pvt.h>
+#include <OpenImageIO/dassert.h>
+#include <OpenImageIO/typedesc.h>
+#include <OpenImageIO/imageio.h>
+#include <OpenImageIO/fmath.h>
 
 OIIO_PLUGIN_NAMESPACE_BEGIN
 
@@ -44,59 +44,88 @@ using namespace DDS_pvt;
 
 class DDSOutput : public ImageOutput {
 public:
-  DDSOutput();
-  virtual ~DDSOutput();
-  virtual const char *format_name(void) const { return "dds"; }
-  virtual bool supports(const std::string &feature) const {
-    // Support nothing nonstandard
-    return false;
-  }
-  virtual bool open(const std::string &name, const ImageSpec &spec,
-                    OpenMode mode);
-  virtual bool close();
-  virtual bool write_scanline(int y, int z, TypeDesc format, const void *data,
-                              stride_t xstride);
+    DDSOutput ();
+    virtual ~DDSOutput ();
+    virtual const char * format_name (void) const { return "dds"; }
+    virtual bool supports (const std::string &feature) const {
+        // Support nothing nonstandard
+        return false;
+    }
+    virtual bool open (const std::string &name, const ImageSpec &spec,
+                       OpenMode mode);
+    virtual bool close ();
+    virtual bool write_scanline (int y, int z, TypeDesc format,
+                                 const void *data, stride_t xstride);
 
 private:
-  std::string m_filename; ///< Stash the filename
-  FILE *m_file;           ///< Open image handle
-  std::vector<unsigned char> m_scratch;
+    std::string m_filename;           ///< Stash the filename
+    FILE *m_file;                     ///< Open image handle
+    std::vector<unsigned char> m_scratch;
 
-  // Initialize private members to pre-opened state
-  void init(void) { m_file = NULL; }
+    // Initialize private members to pre-opened state
+    void init (void) {
+        m_file = NULL;
+    }
 };
+
+
+
 
 // Obligatory material to make this a recognizeable imageio plugin:
 OIIO_PLUGIN_EXPORTS_BEGIN
 
-OIIO_EXPORT ImageOutput *dds_output_imageio_create() { return new DDSOutput; }
+OIIO_EXPORT ImageOutput *dds_output_imageio_create () { return new DDSOutput; }
 
-// OIIO_EXPORT int dds_imageio_version = OIIO_PLUGIN_VERSION;   // it's in
-// tgainput.cpp
+// OIIO_EXPORT int dds_imageio_version = OIIO_PLUGIN_VERSION;   // it's in tgainput.cpp
 
-OIIO_EXPORT const char *dds_output_extensions[] = {"dds", NULL};
+OIIO_EXPORT const char * dds_output_extensions[] = {
+    "dds", NULL
+};
 
 OIIO_PLUGIN_EXPORTS_END
 
-DDSOutput::DDSOutput() { init(); }
 
-DDSOutput::~DDSOutput() {
-  // Close, if not already done.
-  close();
+
+DDSOutput::DDSOutput ()
+{
+    init ();
 }
 
-bool DDSOutput::open(const std::string &name, const ImageSpec &userspec,
-                     OpenMode mode) {
-  error("DDS writing is not supported yet, please poke Leszek in the "
+
+
+DDSOutput::~DDSOutput ()
+{
+    // Close, if not already done.
+    close ();
+}
+
+
+
+bool
+DDSOutput::open (const std::string &name, const ImageSpec &userspec,
+                 OpenMode mode)
+{
+    error ("DDS writing is not supported yet, please poke Leszek in the "
         "mailing list");
-  return false;
+    return false;
 }
 
-bool DDSOutput::close() { return false; }
 
-bool DDSOutput::write_scanline(int y, int z, TypeDesc format, const void *data,
-                               stride_t xstride) {
-  return false;
+
+bool
+DDSOutput::close ()
+{
+    return false;
+}
+
+
+
+bool
+DDSOutput::write_scanline (int y, int z, TypeDesc format,
+                            const void *data, stride_t xstride)
+{
+    return false;
 }
 
 OIIO_PLUGIN_NAMESPACE_END
+

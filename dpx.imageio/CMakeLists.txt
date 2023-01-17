@@ -4,11 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-include(cxx_defaults)
+INCLUDE(cxx_defaults)
 
-set(_target "dpx.imageio")
+SET(_target
+    "dpx.imageio"
+)
 
-list(
+LIST(
   APPEND
   _sources
   dpxinput.cpp
@@ -22,11 +24,21 @@ list(
   libdpx/OutStream.cpp
   libdpx/Reader.cpp
   libdpx/RunLengthEncoding.cpp
-  libdpx/Writer.cpp)
+  libdpx/Writer.cpp
+)
 
-add_library(${_target} SHARED ${_sources})
+ADD_LIBRARY(
+  ${_target} SHARED
+  ${_sources}
+)
 
-target_include_directories(${_target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+TARGET_INCLUDE_DIRECTORIES(
+  ${_target}
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-target_link_libraries(${_target} PUBLIC OpenImageIO)
-rv_stage(TYPE "OIIO_PLUGIN" TARGET ${_target})
+TARGET_LINK_LIBRARIES(
+  ${_target}
+  PUBLIC OpenImageIO
+)
+RV_STAGE(TYPE "OIIO_PLUGIN" TARGET ${_target})

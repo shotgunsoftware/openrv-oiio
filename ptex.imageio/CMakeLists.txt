@@ -4,11 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-include(cxx_defaults)
+INCLUDE(cxx_defaults)
 
-set(_target "ptex.imageio")
+SET(_target
+    "ptex.imageio"
+)
 
-list(
+LIST(
   APPEND
   _sources
   ptexinput.cpp
@@ -22,22 +24,40 @@ list(
   ptex/PtexTriangleFilter.cpp
   ptex/PtexTriangleKernel.cpp
   ptex/PtexUtils.cpp
-  ptex/PtexWriter.cpp)
+  ptex/PtexWriter.cpp
+)
 
-add_library(${_target} SHARED ${_sources})
+ADD_LIBRARY(
+  ${_target} SHARED
+  ${_sources}
+)
 
-target_link_libraries(${_target} PUBLIC OpenImageIO ZLIB::ZLIB)
+TARGET_LINK_LIBRARIES(
+  ${_target}
+  PUBLIC OpenImageIO ZLIB::ZLIB
+)
 
-if(RV_TARGET_LINUX)
-  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-  find_package(Threads REQUIRED)
-  target_link_libraries(${_target} PUBLIC Threads::Threads)
-elseif(RV_TARGET_WINDOWS)
-  target_link_libraries(${_target} PUBLIC win_pthreads win_posix)
-endif()
+IF(RV_TARGET_LINUX)
+  SET(THREADS_PREFER_PTHREAD_FLAG
+      TRUE
+  )
+  FIND_PACKAGE(Threads REQUIRED)
+  TARGET_LINK_LIBRARIES(
+    ${_target}
+    PUBLIC Threads::Threads
+  )
+ELSEIF(RV_TARGET_WINDOWS)
+  TARGET_LINK_LIBRARIES(
+    ${_target}
+    PUBLIC win_pthreads win_posix
+  )
+ENDIF()
 
-if(RV_TARGET_WINDOWS)
-  target_compile_options(${_target} PRIVATE "-DPTEX_EXPORTS=1")
-endif()
+IF(RV_TARGET_WINDOWS)
+  TARGET_COMPILE_OPTIONS(
+    ${_target}
+    PRIVATE "-DPTEX_EXPORTS=1"
+  )
+ENDIF()
 
-rv_stage(TYPE "OIIO_PLUGIN" TARGET ${_target})
+RV_STAGE(TYPE "OIIO_PLUGIN" TARGET ${_target})

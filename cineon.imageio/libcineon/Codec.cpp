@@ -37,43 +37,53 @@
 #include <cineon.imageio/ElementReadStream.h>
 #include <cineon.imageio/ReaderInternal.h>
 
-cineon::Codec::Codec() : scanline(0) {}
 
-cineon::Codec::~Codec() {
-  if (this->scanline)
-    delete[] scanline;
+
+
+cineon::Codec::Codec() : scanline(0)
+{
 }
 
-void cineon::Codec::Reset() {
-  if (this->scanline) {
-    delete[] scanline;
-    this->scanline = 0;
-  }
+
+cineon::Codec::~Codec()
+{
+	if (this->scanline)
+		delete [] scanline;
 }
 
-bool cineon::Codec::Read(const Header &dpxHeader, ElementReadStream *fd,
-                         const Block &block, void *data, const DataSize size) {
-  // scanline buffer
-  if (this->scanline == 0) {
-    // FIXME: make this flexible enough to change per-channel differences!
 
-    // get the number of components for this element descriptor
-    const int numberOfComponents = dpxHeader.NumberOfElements();
-
-    // bit depth of the image element
-    const int bitDepth = dpxHeader.BitDepth(0);
-
-    // size of the scanline buffer is image width * number of components * bytes
-    // per component
-    int slsize = ((numberOfComponents * dpxHeader.Width() *
-                   (bitDepth / 8 + (bitDepth % 8 ? 1 : 0))) /
-                  sizeof(U32)) +
-                 1;
-
-    this->scanline = new U32[slsize];
-  }
-
-  // read the image block
-  return ReadImageBlock<ElementReadStream>(dpxHeader, this->scanline, fd, block,
-                                           data, size);
+void cineon::Codec::Reset()
+{
+	if (this->scanline)
+	{
+		delete [] scanline;
+		this->scanline = 0;
+	}
 }
+
+
+bool cineon::Codec::Read(const Header &dpxHeader, ElementReadStream *fd, const Block &block, void *data, const DataSize size)
+{
+	// scanline buffer
+	if (this->scanline == 0)
+	{
+		// FIXME: make this flexible enough to change per-channel differences!
+
+		// get the number of components for this element descriptor
+		const int numberOfComponents = dpxHeader.NumberOfElements();
+
+		// bit depth of the image element
+		const int bitDepth = dpxHeader.BitDepth(0);
+
+		// size of the scanline buffer is image width * number of components * bytes per component
+		int slsize = ((numberOfComponents * dpxHeader.Width() *
+					  (bitDepth / 8 + (bitDepth % 8 ? 1 : 0))) / sizeof(U32))+1;
+
+		this->scanline = new U32[slsize];
+	}
+
+
+	// read the image block
+	return ReadImageBlock<ElementReadStream>(dpxHeader, this->scanline, fd, block, data, size);
+}
+

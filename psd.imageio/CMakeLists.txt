@@ -4,20 +4,29 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-include(cxx_defaults)
+INCLUDE(cxx_defaults)
 
-set(_target "psd.imageio")
+SET(_target
+    "psd.imageio"
+)
 
-list(APPEND _sources jpeg_memory_src.cpp psdinput.cpp psdoutput.cpp)
+LIST(APPEND _sources jpeg_memory_src.cpp psdinput.cpp psdoutput.cpp)
 
-add_library(${_target} SHARED ${_sources})
+ADD_LIBRARY(
+  ${_target} SHARED
+  ${_sources}
+)
 
-target_include_directories(${_target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+TARGET_INCLUDE_DIRECTORIES(
+  ${_target}
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-target_link_libraries(
+TARGET_LINK_LIBRARIES(
   ${_target}
   PUBLIC OpenImageIO jpeg
          # Boost
-  PRIVATE Boost::headers)
+  PRIVATE Boost::headers
+)
 
-rv_stage(TYPE "OIIO_PLUGIN" TARGET ${_target})
+RV_STAGE(TYPE "OIIO_PLUGIN" TARGET ${_target})

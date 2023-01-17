@@ -4,14 +4,20 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-include(cxx_defaults)
+INCLUDE(cxx_defaults)
 
-set(_target "png_pvt")
+SET(_target
+    "png_pvt"
+)
 
-add_library(${_target} INTERFACE IMPORTED GLOBAL)
+ADD_LIBRARY(${_target} INTERFACE IMPORTED GLOBAL)
 
-set_target_properties(${_target} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
-                                            "${CMAKE_CURRENT_SOURCE_DIR}")
+SET_TARGET_PROPERTIES(
+  ${_target}
+  PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}"
+)
 
-target_link_libraries(${_target} INTERFACE OpenImageIO Imath::Imath png16
-                                           ZLIB::ZLIB)
+TARGET_LINK_LIBRARIES(
+  ${_target}
+  INTERFACE OpenImageIO Imath::Imath png16 ZLIB::ZLIB
+)

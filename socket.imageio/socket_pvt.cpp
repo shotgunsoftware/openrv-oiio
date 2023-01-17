@@ -28,9 +28,12 @@
   (This is the Modified BSD License)
 */
 
+
 /////////////////////////////////////////////////////////////////////////////
 // Private definitions internal to the socket.imageio plugin
 /////////////////////////////////////////////////////////////////////////////
+
+
 
 #include <map>
 
@@ -46,16 +49,18 @@ using namespace boost::asio;
 
 namespace socket_pvt {
 
-std::size_t socket_write(ip::tcp::socket &s, TypeDesc &type, const void *data,
-                         int size) {
-  std::size_t bytes;
+std::size_t
+socket_write (ip::tcp::socket &s, TypeDesc &type, const void *data, int size)
+{
+    std::size_t bytes;
 
-  // TODO: Translate data to correct endianesss.
-  bytes = write(s, buffer(reinterpret_cast<const char *>(data), size));
+    // TODO: Translate data to correct endianesss.
+    bytes = write (s, buffer (reinterpret_cast<const char *> (data), size));
 
-  return bytes;
+    return bytes;
 }
 
-} // namespace socket_pvt
+}
 
 OIIO_PLUGIN_NAMESPACE_END
+

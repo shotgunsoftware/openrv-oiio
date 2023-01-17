@@ -38,56 +38,80 @@
 
 #include <cineon.imageio/CineonStream.h>
 
+
 namespace cineon {
 
-OutStream::OutStream() : fp(0) {}
-
-OutStream::~OutStream() {}
-
-bool OutStream::Open(const char *f) {
-  if (this->fp)
-    this->Close();
-  if ((this->fp = OIIO::Filesystem::fopen(f, "wb")) == 0)
-    return false;
-
-  return true;
+OutStream::OutStream() : fp(0)
+{
 }
 
-void OutStream::Close() {
-  if (this->fp) {
-    ::fclose(this->fp);
-    this->fp = 0;
-  }
+
+OutStream::~OutStream()
+{
 }
 
-size_t OutStream::Write(void *buf, const size_t size) {
-  if (this->fp == 0)
-    return false;
-  return ::fwrite(buf, 1, size, this->fp);
+
+bool OutStream::Open(const char *f)
+{
+	if (this->fp)
+		this->Close();
+	if ((this->fp = OIIO::Filesystem::fopen(f, "wb")) == 0)
+		return false;
+
+	return true;
 }
 
-bool OutStream::Seek(long offset, Origin origin) {
-  int o = 0;
-  switch (origin) {
-  case kCurrent:
-    o = SEEK_CUR;
-    break;
-  case kEnd:
-    o = SEEK_END;
-    break;
-  case kStart:
-    o = SEEK_SET;
-    break;
-  }
 
-  if (this->fp == 0)
-    return -1;
-  return (::fseek(this->fp, offset, o) == 0);
+void OutStream::Close()
+{
+	if (this->fp)
+	{
+		::fclose(this->fp);
+		this->fp = 0;
+	}
 }
 
-void OutStream::Flush() {
-  if (this->fp)
-    ::fflush(this->fp);
+
+size_t OutStream::Write(void *buf, const size_t size)
+{
+	if (this->fp == 0)
+		return false;
+	return ::fwrite(buf, 1, size, this->fp);
 }
 
-} // namespace cineon
+
+bool OutStream::Seek(long offset, Origin origin)
+{
+	int o = 0;
+	switch (origin)
+	{
+	case kCurrent:
+		o = SEEK_CUR;
+		break;
+	case kEnd:
+		o = SEEK_END;
+		break;
+	case kStart:
+		o = SEEK_SET;
+		break;
+	}
+
+	if (this->fp == 0)
+		return -1;
+	return (::fseek(this->fp, offset, o) == 0);
+}
+
+
+void OutStream::Flush()
+{
+	if (this->fp)
+		::fflush(this->fp);
+}
+
+}
+
+
+
+
+
+

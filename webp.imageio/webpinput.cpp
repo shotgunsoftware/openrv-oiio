@@ -27,103 +27,116 @@
 
   (This is the Modified BSD License)
 */
-#include <OpenImageIO/filesystem.h>
-#include <OpenImageIO/fmath.h>
-#include <OpenImageIO/imageio.h>
 #include <cstdio>
 #include <webp/decode.h>
+#include <OpenImageIO/imageio.h>
+#include <OpenImageIO/filesystem.h>
+#include <OpenImageIO/fmath.h>
 
 OIIO_PLUGIN_NAMESPACE_BEGIN
 
 namespace webp_pvt {
 
-class WebpInput : public ImageInput {
-public:
-  WebpInput() { init(); }
-  virtual ~WebpInput() { close(); }
-  virtual const char *format_name() const { return "webp"; }
-  virtual bool open(const std::string &name, ImageSpec &spec);
-  virtual bool read_native_scanline(int y, int z, void *data);
-  virtual bool close();
 
-private:
-  std::string m_filename;
-  uint8_t *m_decoded_image;
-  long int m_image_size;
-  long int m_scanline_size;
-  FILE *m_file;
+class WebpInput : public ImageInput
+{
+ public:
+    WebpInput() { init(); }
+    virtual ~WebpInput() { close(); }
+    virtual const char* format_name() const { return "webp"; }
+    virtual bool open (const std::string &name, ImageSpec &spec);
+    virtual bool read_native_scanline (int y, int z, void *data);
+    virtual bool close ();
 
-  void init() {
-    m_image_size = m_scanline_size = 0;
-    m_decoded_image = NULL;
-    m_file = NULL;
-  }
+ private:
+    std::string m_filename;
+    uint8_t *m_decoded_image;
+    long int m_image_size;
+    long int m_scanline_size;
+    FILE *m_file;
+
+    void init()
+    {
+        m_image_size = m_scanline_size = 0;
+        m_decoded_image = NULL;
+        m_file = NULL;
+    }
 };
 
-bool WebpInput::open(const std::string &name, ImageSpec &spec) {
-  m_filename = name;
 
-  m_file = Filesystem::fopen(m_filename, "rb");
-  if (!m_file) {
-    error("Could not open file \"%s\"", m_filename.c_str());
-    return false;
-  }
+bool
+WebpInput::open (const std::string &name, ImageSpec &spec)
+{
+    m_filename = name;
 
-  fseek(m_file, 0, SEEK_END);
-  m_image_size = ftell(m_file);
-  fseek(m_file, 0, SEEK_SET);
+    m_file = Filesystem::fopen(m_filename, "rb");
+    if (!m_file)
+    {
+        error ("Could not open file \"%s\"", m_filename.c_str());
+        return false;
+    }
 
-  std::vector<uint8_t> encoded_image;
-  encoded_image.resize(m_image_size, 0);
-  size_t numRead =
-      fread(&encoded_image[0], sizeof(uint8_t), encoded_image.size(), m_file);
-  if (numRead != encoded_image.size()) {
-    error("Read failure for \"%s\" (expected %d bytes, read %d)", m_filename,
-          encoded_image.size(), numRead);
-    close();
-    return false;
-  }
+    fseek (m_file, 0, SEEK_END);
+    m_image_size = ftell(m_file);
+    fseek (m_file, 0, SEEK_SET);
 
-  int width = 0, height = 0;
-  if (!WebPGetInfo(&encoded_image[0], encoded_image.size(), &width, &height)) {
-    error("%s is not a WebP image file", m_filename.c_str());
-    close();
-    return false;
-  }
+    std::vector<uint8_t> encoded_image;
+    encoded_image.resize(m_image_size, 0);
+    size_t numRead = fread(&encoded_image[0], sizeof(uint8_t), encoded_image.size(), m_file);
+    if (numRead != encoded_image.size()) {
+    	error ("Read failure for \"%s\" (expected %d bytes, read %d)",
+               m_filename, encoded_image.size(), numRead);
+    	close ();
+    	return false;
+    }
 
-  const int CHANNEL_NUM = 4;
-  m_scanline_size = width * CHANNEL_NUM;
-  m_spec = ImageSpec(width, height, CHANNEL_NUM, TypeDesc::UINT8);
-  spec = m_spec;
+    int width = 0, height = 0;
+    if(!WebPGetInfo(&encoded_image[0], encoded_image.size(), &width, &height))
+    {
+        error ("%s is not a WebP image file", m_filename.c_str());
+        close();
+        return false;
+    }
 
-  if (!(m_decoded_image =
-            WebPDecodeRGBA(&encoded_image[0], encoded_image.size(),
-                           &m_spec.width, &m_spec.height))) {
-    error("Couldn't decode %s", m_filename.c_str());
-    close();
-    return false;
-  }
-  return true;
+    const int CHANNEL_NUM = 4;
+    m_scanline_size = width * CHANNEL_NUM;
+    m_spec = ImageSpec(width, height, CHANNEL_NUM, TypeDesc::UINT8);
+    spec = m_spec;
+
+    if (!(m_decoded_image = WebPDecodeRGBA(&encoded_image[0], encoded_image.size(), &m_spec.width, &m_spec.height)))
+    {
+        error ("Couldn't decode %s", m_filename.c_str());
+        close();
+        return false;
+    }
+    return true;
 }
 
-bool WebpInput::read_native_scanline(int y, int z, void *data) {
-  if (y < 0 || y >= m_spec.width) // out of range scanline
-    return false;
-  memcpy(data, &m_decoded_image[y * m_scanline_size], m_scanline_size);
-  return true;
+
+bool
+WebpInput::read_native_scanline (int y, int z, void *data)
+{
+    if (y < 0 || y >= m_spec.width)   // out of range scanline
+        return false;
+    memcpy(data, &m_decoded_image[y*m_scanline_size], m_scanline_size);
+    return true;    
 }
 
-bool WebpInput::close() {
-  if (m_file) {
-    fclose(m_file);
-    m_file = NULL;
-  }
-  if (m_decoded_image) {
-    free(m_decoded_image); // this was allocated by WebPDecodeRGB and should be
-                           // fread by free
-    m_decoded_image = NULL;
-  }
-  return true;
+
+bool
+WebpInput::close()
+{
+    if (m_file)
+    {
+        fclose(m_file);
+        m_file = NULL;
+    }
+    if (m_decoded_image)
+    {
+        free(m_decoded_image); // this was allocated by WebPDecodeRGB and should be fread by free
+        m_decoded_image = NULL;
+    }
+    return true;
 }
 
 } // namespace webp_pvt
@@ -131,11 +144,13 @@ bool WebpInput::close() {
 // Obligatory material to make this a recognizeable imageio plugin
 OIIO_PLUGIN_EXPORTS_BEGIN
 
-OIIO_EXPORT int webp_imageio_version = OIIO_PLUGIN_VERSION;
-OIIO_EXPORT ImageInput *webp_input_imageio_create() {
-  return new webp_pvt::WebpInput;
-}
-OIIO_EXPORT const char *webp_input_extensions[] = {"webp", NULL};
+    OIIO_EXPORT int webp_imageio_version = OIIO_PLUGIN_VERSION;
+    OIIO_EXPORT ImageInput *webp_input_imageio_create () {
+        return new webp_pvt::WebpInput;
+    }
+    OIIO_EXPORT const char *webp_input_extensions[] = {
+        "webp", NULL
+    };
 
 OIIO_PLUGIN_EXPORTS_END
 

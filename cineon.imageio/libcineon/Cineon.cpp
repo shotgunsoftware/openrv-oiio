@@ -31,29 +31,47 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+
+
 #include <cineon.imageio/Cineon.h>
+
+
+
+
 
 // determine byte order for current system
 // Intel processors are Little Endian
 // Power PC, MIPS and Ultra Sparc are Big Endian
 static unsigned long lValue = 0x12345678;
 static unsigned long *lPtr = &lValue;
-cineon::Endian cineon::systemByteOrder =
-    (*(unsigned char *)lPtr == 0x78 ? cineon::kLittleEndian
-                                    : cineon::kBigEndian);
+cineon::Endian cineon::systemByteOrder = (*(unsigned char*)lPtr == 0x78 ? cineon::kLittleEndian : cineon::kBigEndian);
 
-bool cineon::IdentifyFile(InStream *fp) {
-  U32 magic;
 
-  fp->Rewind();
 
-  if (fp->Read(&magic, sizeof(magic)) != sizeof(magic))
-    return false;
 
-  return cineon::Header::ValidMagicCookie(magic);
+
+
+
+bool cineon::IdentifyFile(InStream *fp)
+{
+	U32 magic;
+
+	fp->Rewind();
+
+	if (fp->Read(&magic, sizeof(magic)) != sizeof(magic))
+		return false;
+
+	return cineon::Header::ValidMagicCookie(magic);
 }
 
-bool cineon::IdentifyFile(const void *p) {
-  U32 magic = *((U32 *)p);
-  return cineon::Header::ValidMagicCookie(magic);
+
+
+
+bool cineon::IdentifyFile(const void *p)
+{
+	U32 magic = *((U32 *) p);
+	return cineon::Header::ValidMagicCookie(magic);
+
 }
+
+

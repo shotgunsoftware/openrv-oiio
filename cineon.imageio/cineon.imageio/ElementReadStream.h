@@ -32,31 +32,35 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 #ifndef _CINEON_ELEMENTREADSTREAM_H
 #define _CINEON_ELEMENTREADSTREAM_H 1
 
+
 #include <cineon.imageio/CineonStream.h>
 
-namespace cineon {
 
-class ElementReadStream {
-public:
-  ElementReadStream(InStream *);
-  virtual ~ElementReadStream();
+namespace cineon
+{
 
-  virtual void Reset();
+	class ElementReadStream
+	{
+	public:
+		ElementReadStream(InStream *);
+		virtual ~ElementReadStream();
 
-  virtual bool Read(const cineon::Header &, const long offset, void *buf,
-                    const size_t size);
-  virtual bool ReadDirect(const cineon::Header &, const long offset, void *buf,
-                          const size_t size);
+		virtual void Reset();
 
-protected:
-  void EndianDataCheck(const cineon::Header &, void *, const size_t size);
+		virtual bool Read(const cineon::Header &, const long offset, void * buf, const size_t size);
+		virtual bool ReadDirect(const cineon::Header &, const long offset, void * buf, const size_t size);
 
-  InStream *fd;
-};
+	protected:
+		void EndianDataCheck(const cineon::Header &, void *, const size_t size);
 
-} // namespace cineon
+		InStream *fd;
+	};
+
+}
+
 
 #endif

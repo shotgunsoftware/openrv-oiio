@@ -32,50 +32,64 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 #ifndef _CINEON_CODEC_H
 #define _CINEON_CODEC_H 1
 
+
 #include <cineon.imageio/Cineon.h>
 
-namespace cineon {
 
-/*!
- * \brief compress / decompress data segments
- * base class defaults to None
- */
-class Codec {
-public:
-  /*!
-   * \brief constructor
-   */
-  Codec();
+namespace cineon
+{
 
-  /*!
-   * \brief destructor
-   */
-  virtual ~Codec();
+	/*!
+	 * \brief compress / decompress data segments
+	 * base class defaults to None
+	 */
+	class Codec
+	{
+	public:
+		/*!
+		 * \brief constructor
+		 */
+		Codec();
 
-  /*!
-   * \brief reset instance
-   */
-  virtual void Reset();
+		/*!
+		 * \brief destructor
+		 */
+		virtual ~Codec();
 
-  /*!
-   * \brief read data
-   * \param dpxHeader dpx header information
-   * \param fd field descriptor
-   * \param block image area to read
-   * \param data buffer
-   * \param size size of the buffer component
-   * \return success
-   */
-  virtual bool Read(const Header &dpxHeader, ElementReadStream *fd,
-                    const Block &block, void *data, const DataSize size);
+		/*!
+		 * \brief reset instance
+		 */
+		virtual void Reset();
 
-protected:
-  U32 *scanline; //!< single scanline
-};
+		/*!
+		 * \brief read data
+		 * \param dpxHeader dpx header information
+		 * \param fd field descriptor
+		 * \param block image area to read
+		 * \param data buffer
+		 * \param size size of the buffer component
+		 * \return success
+		 */
+		virtual bool Read(const Header &dpxHeader,
+						  ElementReadStream *fd,
+						  const Block &block,
+						  void *data,
+						  const DataSize size);
 
-} // namespace cineon
+	protected:
+		U32 *scanline;			//!< single scanline
+
+
+	};
+
+
+}
+
 
 #endif
+
+

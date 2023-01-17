@@ -30,71 +30,106 @@
 
 #include "ptex/PtexWriter.h"
 
-#include <OpenImageIO/fmath.h>
-#include <OpenImageIO/imageio.h>
 #include <OpenImageIO/typedesc.h>
+#include <OpenImageIO/imageio.h>
+#include <OpenImageIO/fmath.h>
 
 OIIO_PLUGIN_NAMESPACE_BEGIN
 
+
 class PtexOutput : public ImageOutput {
 public:
-  PtexOutput();
-  virtual ~PtexOutput();
-  virtual const char *format_name(void) const { return "ptex"; }
-  virtual bool supports(const std::string &feature) const;
-  virtual bool open(const std::string &name, const ImageSpec &spec,
-                    ImageOutput::OpenMode mode);
-  virtual bool close();
-  virtual bool write_scanline(int y, int z, TypeDesc format, const void *data,
-                              stride_t xstride);
+    PtexOutput ();
+    virtual ~PtexOutput ();
+    virtual const char * format_name (void) const { return "ptex"; }
+    virtual bool supports (const std::string &feature) const;
+    virtual bool open (const std::string &name, const ImageSpec &spec,
+                       ImageOutput::OpenMode mode);
+    virtual bool close ();
+    virtual bool write_scanline (int y, int z, TypeDesc format,
+                                 const void *data, stride_t xstride);
 
 private:
-  // Initialize private members to pre-opened state
-  void init(void) {}
+
+    // Initialize private members to pre-opened state
+    void init (void) {
+    }
 };
+
+
+
 
 // Obligatory material to make this a recognizeable imageio plugin:
 OIIO_PLUGIN_EXPORTS_BEGIN
 
-OIIO_EXPORT ImageOutput *ptex_output_imageio_create() { return new PtexOutput; }
+OIIO_EXPORT ImageOutput *ptex_output_imageio_create () { return new PtexOutput; }
 
-// OIIO_EXPORT int ptex_imageio_version = OIIO_PLUGIN_VERSION;   // it's in
-// ptexinput.cpp
+// OIIO_EXPORT int ptex_imageio_version = OIIO_PLUGIN_VERSION;   // it's in ptexinput.cpp
 
-OIIO_EXPORT const char *ptex_output_extensions[] = {"ptex", "ptx", NULL};
+OIIO_EXPORT const char * ptex_output_extensions[] = {
+    "ptex", "ptx", NULL
+};
 
 OIIO_PLUGIN_EXPORTS_END
 
-PtexOutput::PtexOutput() { init(); }
 
-PtexOutput::~PtexOutput() {
-  // Close, if not already done.
-  close();
+
+PtexOutput::PtexOutput ()
+{
+    init ();
 }
 
-bool PtexOutput::supports(const std::string &feature) const {
-  return (feature == "tiles" || feature == "multiimage" ||
-          feature == "mipmap" || feature == "alpha" || feature == "nchannels" ||
-          feature == "arbitrary_metadata" ||
-          feature == "exif"      // Because of arbitrary_metadata
-          || feature == "iptc"); // Because of arbitrary_metadata
+
+
+PtexOutput::~PtexOutput ()
+{
+    // Close, if not already done.
+    close ();
 }
 
-bool PtexOutput::open(const std::string &name, const ImageSpec &userspec,
-                      ImageOutput::OpenMode mode) {
-  error("Ptex writer is not implemented yet, please poke Larry.");
-  return false;
+
+
+bool
+PtexOutput::supports (const std::string &feature) const
+{
+    return (feature == "tiles"
+         || feature == "multiimage"
+         || feature == "mipmap"
+         || feature == "alpha"
+         || feature == "nchannels"
+         || feature == "arbitrary_metadata"
+         || feature == "exif"   // Because of arbitrary_metadata
+         || feature == "iptc"); // Because of arbitrary_metadata
 }
 
-bool PtexOutput::close() {
-  init();
-  return true;
+
+
+bool
+PtexOutput::open (const std::string &name, const ImageSpec &userspec,
+                  ImageOutput::OpenMode mode)
+{
+    error ("Ptex writer is not implemented yet, please poke Larry.");
+    return false;
 }
 
-bool PtexOutput::write_scanline(int y, int z, TypeDesc format, const void *data,
-                                stride_t xstride) {
-  error("Ptex writer is not implemented yet, please poke Larry.");
-  return false;
+
+
+bool
+PtexOutput::close ()
+{
+    init();
+    return true;
+}
+
+
+
+bool
+PtexOutput::write_scanline (int y, int z, TypeDesc format,
+                            const void *data, stride_t xstride)
+{
+    error ("Ptex writer is not implemented yet, please poke Larry.");
+    return false;
 }
 
 OIIO_PLUGIN_NAMESPACE_END
+

@@ -4,14 +4,22 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-include(cxx_defaults)
+INCLUDE(cxx_defaults)
 
-set(_target "tiff.imageio")
+SET(_target
+    "tiff.imageio"
+)
 
-list(APPEND _sources tiffinput.cpp tiffoutput.cpp)
+LIST(APPEND _sources tiffinput.cpp tiffoutput.cpp)
 
-add_library(${_target} SHARED ${_sources})
+ADD_LIBRARY(
+  ${_target} SHARED
+  ${_sources}
+)
 
-target_link_libraries(${_target} PRIVATE OpenImageIO tiff)
+TARGET_LINK_LIBRARIES(
+  ${_target}
+  PRIVATE OpenImageIO tiff
+)
 
-rv_stage(TYPE "OIIO_PLUGIN" TARGET ${_target})
+RV_STAGE(TYPE "OIIO_PLUGIN" TARGET ${_target})

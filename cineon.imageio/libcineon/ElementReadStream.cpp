@@ -32,73 +32,87 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cassert>
 #include <cineon.imageio/Cineon.h>
-#include <cineon.imageio/ElementReadStream.h>
 #include <cineon.imageio/EndianSwap.h>
+#include <cineon.imageio/ElementReadStream.h>
+#include <cassert>
 
-cineon::ElementReadStream::ElementReadStream(InStream *fd) : fd(fd) {}
 
-cineon::ElementReadStream::~ElementReadStream() {}
-
-void cineon::ElementReadStream::Reset() {}
-
-bool cineon::ElementReadStream::Read(const cineon::Header &dpxHeader,
-                                     const long offset, void *buf,
-                                     const size_t size) {
-  long position = dpxHeader.ImageOffset() + offset;
-
-  // seek to the memory position
-  if (this->fd->Seek(position, InStream::kStart) == false)
-    return false;
-
-  // read in the data, calculate buffer offset
-  if (this->fd->Read(buf, size) != size)
-    return false;
-
-  // swap the bytes if different byte order
-  this->EndianDataCheck(dpxHeader, buf, size);
-
-  return true;
+cineon::ElementReadStream::ElementReadStream(InStream *fd) : fd(fd)
+{
 }
 
-bool cineon::ElementReadStream::ReadDirect(const cineon::Header &dpxHeader,
-                                           const long offset, void *buf,
-                                           const size_t size) {
-  long position = dpxHeader.ImageOffset() + offset;
 
-  // seek to the memory position
-  if (this->fd->Seek(position, InStream::kStart) == false)
-    return false;
-
-  // read in the data, calculate buffer offset
-  if (this->fd->ReadDirect(buf, size) != size)
-    return false;
-
-  // swap the bytes if different byte order
-  this->EndianDataCheck(dpxHeader, buf, size);
-
-  return true;
+cineon::ElementReadStream::~ElementReadStream()
+{
 }
 
-void cineon::ElementReadStream::EndianDataCheck(const cineon::Header &dpxHeader,
-                                                void *buf, const size_t size) {
-  if (dpxHeader.RequiresByteSwap()) {
-    // FIXME!!!
-    switch (dpxHeader.BitDepth(0)) {
-    case 8:
-      break;
-    case 12:
-      if (dpxHeader.ImagePacking() == cineon::kPacked)
-        cineon::EndianSwapImageBuffer<cineon::kInt>(buf, size / sizeof(U32));
-      else
-        cineon::EndianSwapImageBuffer<cineon::kWord>(buf, size / sizeof(U16));
-      break;
-    case 16:
-      cineon::EndianSwapImageBuffer<cineon::kWord>(buf, size / sizeof(U16));
-      break;
-    default: // 10-bit, 32-bit, 64-bit
-      cineon::EndianSwapImageBuffer<cineon::kInt>(buf, size / sizeof(U32));
-    }
-  }
+
+void cineon::ElementReadStream::Reset()
+{
 }
+
+
+bool cineon::ElementReadStream::Read(const cineon::Header &dpxHeader, const long offset, void * buf, const size_t size)
+{
+	long position = dpxHeader.ImageOffset() + offset;
+
+	// seek to the memory position
+	if (this->fd->Seek(position, InStream::kStart) == false)
+		return false;
+
+	// read in the data, calculate buffer offset
+	if (this->fd->Read(buf, size) != size)
+		return false;
+
+	// swap the bytes if different byte order
+	this->EndianDataCheck(dpxHeader, buf, size);
+
+	return true;
+}
+
+
+bool cineon::ElementReadStream::ReadDirect(const cineon::Header &dpxHeader, const long offset, void * buf, const size_t size)
+{
+	long position = dpxHeader.ImageOffset() + offset;
+
+	// seek to the memory position
+	if (this->fd->Seek(position, InStream::kStart) == false)
+		return false;
+
+	// read in the data, calculate buffer offset
+	if (this->fd->ReadDirect(buf, size) != size)
+		return false;
+
+	// swap the bytes if different byte order
+	this->EndianDataCheck(dpxHeader, buf, size);
+
+	return true;
+}
+
+
+
+void cineon::ElementReadStream::EndianDataCheck(const cineon::Header &dpxHeader, void *buf, const size_t size)
+{
+	if (dpxHeader.RequiresByteSwap())
+	{
+		// FIXME!!!
+		switch (dpxHeader.BitDepth(0))
+		{
+		case 8:
+			break;
+		case 12:
+			if (dpxHeader.ImagePacking() == cineon::kPacked)
+				cineon::EndianSwapImageBuffer<cineon::kInt>(buf, size / sizeof(U32));
+			else
+				cineon::EndianSwapImageBuffer<cineon::kWord>(buf, size / sizeof(U16));
+			break;
+		case 16:
+			cineon::EndianSwapImageBuffer<cineon::kWord>(buf, size / sizeof(U16));
+			break;
+		default:		// 10-bit, 32-bit, 64-bit
+			cineon::EndianSwapImageBuffer<cineon::kInt>(buf, size / sizeof(U32));
+		}
+	}
+}
+

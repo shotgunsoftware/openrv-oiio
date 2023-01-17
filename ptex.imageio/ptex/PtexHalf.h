@@ -1,7 +1,7 @@
 #ifndef PtexHalf_h
 #define PtexHalf_h
 
-/*
+/* 
 PTEX SOFTWARE
 Copyright 2009 Disney Enterprises, Inc.  All rights reserved
 
@@ -42,19 +42,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 */
 
 #ifndef PTEXAPI
-#if defined(_WIN32) || defined(_WINDOWS) || defined(_MSC_VER)
-#ifndef PTEX_STATIC
-#ifdef PTEX_EXPORTS
-#define PTEXAPI __declspec(dllexport)
-#else
-#define PTEXAPI __declspec(dllimport)
-#endif
-#else
-#define PTEXAPI
-#endif
-#else
-#define PTEXAPI
-#endif
+#  if defined(_WIN32) || defined(_WINDOWS) || defined(_MSC_VER)
+#    ifndef PTEX_STATIC
+#      ifdef PTEX_EXPORTS
+#         define PTEXAPI __declspec(dllexport)
+#      else
+#         define PTEXAPI __declspec(dllimport)
+#      endif
+#    else
+#      define PTEXAPI
+#    endif
+#  else
+#    define PTEXAPI
+#  endif
 #endif
 
 #include "PtexInt.h"
@@ -82,48 +82,39 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 */
 
 struct PtexHalf {
-  uint16_t bits;
+    uint16_t bits;
 
-  /// Default constructor, value is undefined
-  PtexHalf() {}
-  PtexHalf(float val) : bits(fromFloat(val)) {}
-  PtexHalf(double val) : bits(fromFloat(float(val))) {}
-  operator float() const { return toFloat(bits); }
-  PtexHalf &operator=(float val) {
-    bits = fromFloat(val);
-    return *this;
-  }
+    /// Default constructor, value is undefined
+    PtexHalf() {}
+    PtexHalf(float val) : bits(fromFloat(val)) {}
+    PtexHalf(double val) : bits(fromFloat(float(val))) {}
+    operator float() const { return toFloat(bits); }
+    PtexHalf& operator=(float val) { bits = fromFloat(val); return *this; }
 
-  static float toFloat(uint16_t h) {
-    union {
-      uint32_t i;
-      float f;
-    } u;
-    u.i = h2fTable[h];
-    return u.f;
-  }
+    static float toFloat(uint16_t h)
+    {
+	union { uint32_t i; float f; } u;
+	u.i = h2fTable[h];
+	return u.f;
+    }
 
-  static uint16_t fromFloat(float val) {
-    if (val == 0)
-      return 0;
-    union {
-      uint32_t i;
-      float f;
-    } u;
-    u.f = val;
-    int e = f2hTable[(u.i >> 23) & 0x1ff];
-    if (e)
-      return e + (((u.i & 0x7fffff) + 0x1000) >> 13);
-    return fromFloat_except(u.i);
-  }
+    static uint16_t fromFloat(float val)
+    {
+	if (val==0) return 0;
+	union { uint32_t i; float f; } u;
+	u.f = val;
+	int e = f2hTable[(u.i>>23)&0x1ff];
+	if (e) return e + (((u.i&0x7fffff) + 0x1000) >> 13);
+	return fromFloat_except(u.i);
+    }
 
-private:
-  PTEXAPI static uint16_t fromFloat_except(uint32_t val);
+ private:
+    PTEXAPI static uint16_t fromFloat_except(uint32_t val);
 #ifndef DOXYGEN
-  /* internal */ public:
+    /* internal */ public:
 #endif
-  PTEXAPI static uint32_t h2fTable[65536];
-  PTEXAPI static uint16_t f2hTable[512];
+    PTEXAPI static uint32_t h2fTable[65536];
+    PTEXAPI static uint16_t f2hTable[512];
 };
 
 #endif

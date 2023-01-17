@@ -37,55 +37,80 @@ OIIO_PLUGIN_NAMESPACE_BEGIN
 
 class PSDOutput : public ImageOutput {
 public:
-  PSDOutput();
-  virtual ~PSDOutput();
-  virtual const char *format_name(void) const { return "psd"; }
-  virtual bool supports(const std::string &feature) const {
-    return (feature == "alpha");
-  }
-  virtual bool open(const std::string &name, const ImageSpec &spec,
-                    OpenMode mode = Create);
-  virtual bool close();
-  virtual bool write_scanline(int y, int z, TypeDesc format, const void *data,
-                              stride_t xstride);
+    PSDOutput ();
+    virtual ~PSDOutput ();
+    virtual const char * format_name (void) const { return "psd"; }
+    virtual bool supports (const std::string &feature) const {
+        return (feature == "alpha");
+    }
+    virtual bool open (const std::string &name, const ImageSpec &spec,
+                       OpenMode mode=Create);
+    virtual bool close ();
+    virtual bool write_scanline (int y, int z, TypeDesc format,
+                                 const void *data, stride_t xstride);
 
 private:
-  std::string m_filename; ///< Stash the filename
-  std::ofstream m_file;   ///< Open image handle
+    std::string m_filename;           ///< Stash the filename
+    std::ofstream m_file;             ///< Open image handle
 
-  // Initialize private members to pre-opened state
-  void init(void) {}
+    // Initialize private members to pre-opened state
+    void init (void) {
+    }
+
 };
 
 // Obligatory material to make this a recognizeable imageio plugin:
 OIIO_PLUGIN_EXPORTS_BEGIN
 
-OIIO_EXPORT ImageOutput *psd_output_imageio_create() { return new PSDOutput; }
+OIIO_EXPORT ImageOutput *psd_output_imageio_create () { return new PSDOutput; }
 
-OIIO_EXPORT const char *psd_output_extensions[] = {"psd", NULL};
+OIIO_EXPORT const char * psd_output_extensions[] = {
+    "psd", NULL
+};
 
 OIIO_PLUGIN_EXPORTS_END
 
-PSDOutput::PSDOutput() { init(); }
 
-PSDOutput::~PSDOutput() {
-  // Close, if not already done.
-  close();
+
+PSDOutput::PSDOutput ()
+{
+    init ();
 }
 
-bool PSDOutput::open(const std::string &name, const ImageSpec &userspec,
-                     OpenMode mode) {
-  return false;
+
+
+PSDOutput::~PSDOutput ()
+{
+    // Close, if not already done.
+    close ();
 }
 
-bool PSDOutput::close() {
-  init();
-  return false;
+
+
+bool
+PSDOutput::open (const std::string &name, const ImageSpec &userspec,
+                 OpenMode mode)
+{
+    return false;
 }
 
-bool PSDOutput::write_scanline(int y, int z, TypeDesc format, const void *data,
-                               stride_t xstride) {
-  return false;
+
+
+bool
+PSDOutput::close ()
+{
+    init ();
+    return false;
+}
+
+
+
+bool
+PSDOutput::write_scanline (int y, int z, TypeDesc format,
+                            const void *data, stride_t xstride)
+{
+    return false;
 }
 
 OIIO_PLUGIN_NAMESPACE_END
+

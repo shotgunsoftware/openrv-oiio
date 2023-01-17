@@ -1,7 +1,7 @@
 #ifndef PtexPlatform_h
 #define PtexPlatform_h
 #define PtexPlatform_h
-/*
+/* 
 PTEX SOFTWARE
 Copyright 2009 Disney Enterprises, Inc.  All rights reserved
 
@@ -51,10 +51,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 // windows - defined for both Win32 and Win64
 #include <Windows.h>
-#include <io.h>
 #include <malloc.h>
+#include <io.h>
+#include <tchar.h> 
 #include <process.h>
-#include <tchar.h>
 
 #else
 
@@ -63,8 +63,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 #if !defined(__FreeBSD__) && !defined(__OpenBSD__)
 #include <alloca.h>
 #endif
-#include <pthread.h>
 #include <string.h>
+#include <pthread.h>
 // OS for spinlock
 #ifdef __APPLE__
 #include <libkern/OSAtomic.h>
@@ -73,9 +73,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 #endif
 
 // general includes
-#include <assert.h>
-#include <math.h>
 #include <stdio.h>
+#include <math.h>
+#include <assert.h>
 
 // missing functions on Windows
 #ifdef WINDOWS
@@ -85,80 +85,78 @@ typedef __int64 FilePos;
 #define fseeko _fseeki64
 #define ftello _ftelli64
 
-inline double log2(double x) { return log(x) * 1.4426950408889634; }
+inline double log2(double x) {
+    return log(x) * 1.4426950408889634; 
+}
 
 #else
 typedef off_t FilePos;
 #endif
+    
 
 namespace PtexInternal {
 
-/*
- * Mutex/SpinLock classes
- */
+    /*
+     * Mutex/SpinLock classes
+     */
 
 #ifdef WINDOWS
 
-class _Mutex {
-public:
-  _Mutex() { _mutex = CreateMutex(NULL, FALSE, NULL); }
-  ~_Mutex() { CloseHandle(_mutex); }
-  void lock() { WaitForSingleObject(_mutex, INFINITE); }
-  void unlock() { ReleaseMutex(_mutex); }
+    class _Mutex {
+    public:
+	_Mutex()       { _mutex = CreateMutex(NULL, FALSE, NULL); }
+	~_Mutex()      { CloseHandle(_mutex); }
+	void lock()   { WaitForSingleObject(_mutex, INFINITE); }
+	void unlock() { ReleaseMutex(_mutex); }
+    private:
+	HANDLE _mutex;
+    };
 
-private:
-  HANDLE _mutex;
-};
-
-class _SpinLock {
-public:
-  _SpinLock() { InitializeCriticalSection(&_spinlock); }
-  ~_SpinLock() { DeleteCriticalSection(&_spinlock); }
-  void lock() { EnterCriticalSection(&_spinlock); }
-  void unlock() { LeaveCriticalSection(&_spinlock); }
-
-private:
-  CRITICAL_SECTION _spinlock;
-};
+    class _SpinLock {
+    public:
+	_SpinLock()    { InitializeCriticalSection(&_spinlock); }
+	~_SpinLock()   { DeleteCriticalSection(&_spinlock); }
+	void lock()   { EnterCriticalSection(&_spinlock); }
+	void unlock() { LeaveCriticalSection(&_spinlock); }
+    private:
+	CRITICAL_SECTION _spinlock;
+    };
 
 #else
-// assume linux/unix/posix
+    // assume linux/unix/posix
 
-class _Mutex {
-public:
-  _Mutex() { pthread_mutex_init(&_mutex, 0); }
-  ~_Mutex() { pthread_mutex_destroy(&_mutex); }
-  void lock() { pthread_mutex_lock(&_mutex); }
-  void unlock() { pthread_mutex_unlock(&_mutex); }
-
-private:
-  pthread_mutex_t _mutex;
-};
+    class _Mutex {
+     public:
+	_Mutex()      { pthread_mutex_init(&_mutex, 0); }
+	~_Mutex()     { pthread_mutex_destroy(&_mutex); }
+	void lock()   { pthread_mutex_lock(&_mutex); }
+	void unlock() { pthread_mutex_unlock(&_mutex); }
+    private:
+	pthread_mutex_t _mutex;
+    };
 
 #ifdef __APPLE__
-class _SpinLock {
-public:
-  _SpinLock() { _spinlock = 0; }
-  ~_SpinLock() {}
-  void lock() { OSSpinLockLock(&_spinlock); }
-  void unlock() { OSSpinLockUnlock(&_spinlock); }
-
-private:
-  OSSpinLock _spinlock;
-};
+    class _SpinLock {
+    public:
+	_SpinLock()   { _spinlock = 0; }
+	~_SpinLock()  { }
+	void lock()   { OSSpinLockLock(&_spinlock); }
+	void unlock() { OSSpinLockUnlock(&_spinlock); }
+    private:
+	OSSpinLock _spinlock;
+    };
 #else
-class _SpinLock {
-public:
-  _SpinLock() { pthread_spin_init(&_spinlock, PTHREAD_PROCESS_PRIVATE); }
-  ~_SpinLock() { pthread_spin_destroy(&_spinlock); }
-  void lock() { pthread_spin_lock(&_spinlock); }
-  void unlock() { pthread_spin_unlock(&_spinlock); }
-
-private:
-  pthread_spinlock_t _spinlock;
-};
+    class _SpinLock {
+    public:
+	_SpinLock()   { pthread_spin_init(&_spinlock, PTHREAD_PROCESS_PRIVATE); }
+	~_SpinLock()  { pthread_spin_destroy(&_spinlock); }
+	void lock()   { pthread_spin_lock(&_spinlock); }
+	void unlock() { pthread_spin_unlock(&_spinlock); }
+    private:
+	pthread_spinlock_t _spinlock;
+    };
 #endif // __APPLE__
 #endif
-} // namespace PtexInternal
+}
 
 #endif // PtexPlatform_h

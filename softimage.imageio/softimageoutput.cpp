@@ -37,14 +37,20 @@ OIIO_PLUGIN_NAMESPACE_BEGIN
 
 using namespace softimage_pvt;
 
+
+
 // symbols required for OpenImageIO plugin
 OIIO_PLUGIN_EXPORTS_BEGIN
 
-OIIO_EXPORT ImageOutput *softimage_output_imageio_create() {
-  return NULL; // new SoftimageOutput;
-}
-OIIO_EXPORT const char *softimage_output_extensions[] = {"pic", NULL};
+    OIIO_EXPORT ImageOutput *softimage_output_imageio_create() {
+        return NULL;  // new SoftimageOutput;
+    }
+    OIIO_EXPORT const char *softimage_output_extensions[] = {
+        "pic", NULL
+    };
 
 OIIO_PLUGIN_EXPORTS_END
 
 OIIO_PLUGIN_NAMESPACE_END
+
+

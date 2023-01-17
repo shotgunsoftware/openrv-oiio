@@ -40,296 +40,330 @@
 #include <cineon.imageio/EndianSwap.h>
 #include <cineon.imageio/WriterInternal.h>
 
-cineon::Writer::Writer() : fileLoc(0) {}
 
-cineon::Writer::~Writer() {}
 
-void cineon::Writer::Start() {}
-
-void cineon::Writer::SetFileInfo(const char *fileName, const char *creationDate,
-                                 const char *creationTime) {
-  if (fileName)
-    this->header.SetFileName(fileName);
-
-  if (creationDate && creationTime) {
-    this->header.SetCreationDate(creationDate);
-    this->header.SetCreationTime(creationTime);
-  } else {
-    time_t seconds = time(0);
-    this->header.SetCreationTimeDate(seconds);
-  }
+cineon::Writer::Writer() : fileLoc(0)
+{
 }
 
-void cineon::Writer::SetImageInfo(const U32 width, const U32 height) {
-  this->header.SetImageOrientation(kLeftToRightTopToBottom);
+
+cineon::Writer::~Writer()
+{
 }
+
+
+void cineon::Writer::Start()
+{
+}
+
+
+void cineon::Writer::SetFileInfo(const char *fileName, const char *creationDate, const char *creationTime)
+{
+	if (fileName)
+		this->header.SetFileName(fileName);
+
+	if (creationDate && creationTime) {
+		this->header.SetCreationDate(creationDate);
+		this->header.SetCreationTime(creationTime);
+	} else {
+		time_t seconds = time(0);
+		this->header.SetCreationTimeDate(seconds);
+	}
+}
+
+
+void cineon::Writer::SetImageInfo(const U32 width, const U32 height)
+{
+	this->header.SetImageOrientation(kLeftToRightTopToBottom);
+}
+
 
 // returns next available or MAX_ELEMENTS if full
-int cineon::Writer::NextAvailElement() const {
-  unsigned int i;
+int cineon::Writer::NextAvailElement() const
+{
+	unsigned int i;
 
-  for (i = 0; i < MAX_ELEMENTS; i++) {
-    if (this->header.ImageDescriptor(i) == kUndefinedDescriptor)
-      break;
-  }
+	for (i = 0; i < MAX_ELEMENTS; i++)
+	{
+		if (this->header.ImageDescriptor(i) == kUndefinedDescriptor)
+			break;
+	}
 
-  return i;
+	return i;
 }
 
-void cineon::Writer::SetOutStream(OutStream *fd) { this->fd = fd; }
 
-bool cineon::Writer::WriteHeader() {
-  // calculate any header info
-  this->header.CalculateOffsets();
-
-  // seek to the beginning of the file
-  if (!this->fd->Seek(0, OutStream::kStart))
-    return false;
-
-  // writing the header count
-  this->fileLoc = this->header.Size();
-
-  return this->header.Write(fd);
+void cineon::Writer::SetOutStream(OutStream *fd)
+{
+	this->fd = fd;
 }
 
-void cineon::Writer::SetUserData(const long size) {
-  // TODO
+
+bool cineon::Writer::WriteHeader()
+{
+	// calculate any header info
+	this->header.CalculateOffsets();
+
+	// seek to the beginning of the file
+	if (!this->fd->Seek(0, OutStream::kStart))
+		return false;
+
+	// writing the header count
+	this->fileLoc = this->header.Size();
+
+	return this->header.Write(fd);
 }
 
-bool cineon::Writer::WriteUserData(void *data) {
-  // XXX TODO
-  return false;
+
+void cineon::Writer::SetUserData(const long size)
+{
+	// TODO
 }
 
-void cineon::Writer::SetElement(const int num, const Descriptor desc,
-                                const U8 bitDepth, const U32 pixelsPerLine,
-                                const U32 linesPerElement, const R32 lowData,
-                                const R32 lowQuantity, const R32 highData,
-                                const R32 highQuantity) {
-  // make sure the range is good
-  if (num < 0 || num >= MAX_ELEMENTS)
-    return;
 
-  // set values
-  this->header.SetLowData(num, lowData);
-  this->header.SetLowQuantity(num, lowQuantity);
-  this->header.SetHighData(num, highData);
-  this->header.SetHighQuantity(num, highQuantity);
-  this->header.SetImageDescriptor(num, desc);
-  this->header.SetBitDepth(num, bitDepth);
-
-  // determine if increases element count
-  this->header.CalculateNumberOfElements();
+bool cineon::Writer::WriteUserData(void *data)
+{
+	// XXX TODO
+	return false;
 }
+
+
+void cineon::Writer::SetElement(const int num, const Descriptor desc, const U8 bitDepth,
+			const U32 pixelsPerLine,
+			const U32 linesPerElement,
+			const R32 lowData, const R32 lowQuantity,
+			const R32 highData, const R32 highQuantity)
+{
+	// make sure the range is good
+	if (num < 0 || num >= MAX_ELEMENTS)
+		return;
+
+	// set values
+	this->header.SetLowData(num, lowData);
+	this->header.SetLowQuantity(num, lowQuantity);
+	this->header.SetHighData(num, highData);
+	this->header.SetHighQuantity(num, highQuantity);
+	this->header.SetImageDescriptor(num, desc);
+	this->header.SetBitDepth(num, bitDepth);
+
+	// determine if increases element count
+	this->header.CalculateNumberOfElements();
+}
+
 
 // the data is processed so write it straight through
 // argument count is total size in bytes of the passed data
-bool cineon::Writer::WriteElement(const int element, void *data,
-                                  const long count) {
-  // make sure the range is good
-  if (element < 0 || element >= MAX_ELEMENTS)
-    return false;
+bool cineon::Writer::WriteElement(const int element, void *data, const long count)
+{
+	// make sure the range is good
+	if (element < 0 || element >= MAX_ELEMENTS)
+		return false;
 
-  // make sure the entry is valid
-  if (this->header.ImageDescriptor(element) == kUndefinedDescriptor)
-    return false;
+	// make sure the entry is valid
+	if (this->header.ImageDescriptor(element) == kUndefinedDescriptor)
+		return false;
 
-  // update file ptr
-  // this->header.SetDataOffset(element, this->fileLoc);
-  this->fileLoc += count;
+	// update file ptr
+	//this->header.SetDataOffset(element, this->fileLoc);
+	this->fileLoc += count;
 
-  // write
-  return (this->fd->Write(data, count) > 0);
+	// write
+	return (this->fd->Write(data, count) > 0);
 }
 
-bool cineon::Writer::WriteElement(const int element, void *data) {
-  // make sure the range is good
-  if (element < 0 || element >= MAX_ELEMENTS)
-    return false;
 
-  // make sure the entry is valid
-  if (this->header.ImageDescriptor(element) == kUndefinedDescriptor)
-    return false;
 
-  return this->WriteElement(element, data,
-                            this->header.ComponentDataSize(element));
+bool cineon::Writer::WriteElement(const int element, void *data)
+{
+	// make sure the range is good
+	if (element < 0 || element >= MAX_ELEMENTS)
+		return false;
+
+	// make sure the entry is valid
+	if (this->header.ImageDescriptor(element) == kUndefinedDescriptor)
+		return false;
+
+	return this->WriteElement(element, data, this->header.ComponentDataSize(element));
 }
 
-bool cineon::Writer::WriteElement(const int element, void *data,
-                                  const DataSize size) {
-  bool status = true;
 
-  // make sure the range is good
-  if (element < 0 || element >= MAX_ELEMENTS)
-    return false;
 
-  // make sure the entry is valid
-  if (this->header.ImageDescriptor(element) == kUndefinedDescriptor)
-    return false;
+bool cineon::Writer::WriteElement(const int element, void *data, const DataSize size)
+{
+	bool status = true;
 
-  // mark location in headers
-  if (element == 0)
-    this->header.SetImageOffset(this->fileLoc);
-  // this->header.SetDataOffset(element, this->fileLoc);
+	// make sure the range is good
+	if (element < 0 || element >= MAX_ELEMENTS)
+		return false;
 
-  // reverse the order of the components
-  bool reverse = false;
+	// make sure the entry is valid
+	if (this->header.ImageDescriptor(element) == kUndefinedDescriptor)
+		return false;
 
-  // image parameters
-  const U32 eolnPad = this->header.EndOfLinePadding();
-  const U32 eoimPad = this->header.EndOfImagePadding();
-  const U8 bitDepth = this->header.BitDepth(element);
-  const U32 width = this->header.Width();
-  const U32 height = this->header.Height();
-  const int noc = this->header.NumberOfElements();
-  const Packing packing = this->header.ImagePacking();
+	// mark location in headers
+	if (element == 0)
+		this->header.SetImageOffset(this->fileLoc);
+	//this->header.SetDataOffset(element, this->fileLoc);
 
-  // check width & height, just in case
-  if (width == 0 || height == 0)
-    return false;
+	// reverse the order of the components
+	bool reverse = false;
 
-  //  sizeof a component in an image
-  const int bytes = (bitDepth + 7) / 8;
+	// image parameters
+	const U32 eolnPad = this->header.EndOfLinePadding();
+	const U32 eoimPad = this->header.EndOfImagePadding();
+	const U8 bitDepth = this->header.BitDepth(element);
+	const U32 width = this->header.Width();
+	const U32 height = this->header.Height();
+	const int noc = this->header.NumberOfElements();
+	const Packing packing = this->header.ImagePacking();
 
-  // allocate memory for use to write blank space
-  char *blank = 0;
-  if (eolnPad || eoimPad) {
-    int bsize = eolnPad > eoimPad ? eolnPad : eoimPad;
-    blank = new char[bsize];
-    memset(blank, bsize, sizeof(char));
-  }
+	// check width & height, just in case
+	if (width == 0 || height == 0)
+		return false;
 
-  // can we write the entire memory chunk at once without any additional
-  // processing
-  if ((bitDepth == 8 && size == cineon::kByte) ||
-      (bitDepth == 12 &&
-       size == cineon::kWord /*&& packing == kFilledMethodA*/) ||
-      (bitDepth == 16 && size == cineon::kWord)) {
-    status = this->WriteThrough(data, width, height, noc, bytes, eolnPad,
-                                eoimPad, blank);
-    if (blank)
-      delete[] blank;
-    return status;
-  } else {
-    switch (bitDepth) {
-    case 8:
-      if (size == cineon::kByte)
-        this->fileLoc +=
-            WriteBuffer<U8, 8, true>(this->fd, size, data, width, height, noc,
-                                     packing, reverse, eolnPad, blank, status);
-      else
-        this->fileLoc +=
-            WriteBuffer<U8, 8, false>(this->fd, size, data, width, height, noc,
-                                      packing, reverse, eolnPad, blank, status);
-      break;
+	//  sizeof a component in an image
+	const int bytes = (bitDepth + 7) / 8;
 
-    case 10:
-      // are the channels stored in reverse
-      /*if (this->header.ImageDescriptor(element) == kRGB &&
-         this->header.DatumSwap(element) && bitDepth == 10) reverse = true;*/
+	// allocate memory for use to write blank space
+	char *blank = 0;
+	if (eolnPad || eoimPad)
+	{
+		int bsize = eolnPad > eoimPad ? eolnPad : eoimPad;
+		blank = new char[bsize];
+		memset(blank, bsize, sizeof(char));
+	}
 
-      if (size == cineon::kWord)
-        this->fileLoc += WriteBuffer<U16, 10, true>(
-            this->fd, size, data, width, height, noc, packing, reverse, eolnPad,
-            blank, status);
-      else
-        this->fileLoc += WriteBuffer<U16, 10, false>(
-            this->fd, size, data, width, height, noc, packing, reverse, eolnPad,
-            blank, status);
-      break;
+	// can we write the entire memory chunk at once without any additional processing
+	if ((bitDepth == 8 && size == cineon::kByte) ||
+		 (bitDepth == 12 && size == cineon::kWord /*&& packing == kFilledMethodA*/) ||
+		 (bitDepth == 16 && size == cineon::kWord))
+	{
+		status = this->WriteThrough(data, width, height, noc, bytes, eolnPad, eoimPad, blank);
+		if (blank)
+			delete [] blank;
+		return status;
+	}
+	else
+	{
+		switch (bitDepth)
+		{
+		case 8:
+			if (size == cineon::kByte)
+				this->fileLoc += WriteBuffer<U8, 8, true>(this->fd, size, data, width, height, noc, packing, reverse, eolnPad, blank, status);
+			else
+				this->fileLoc += WriteBuffer<U8, 8, false>(this->fd, size, data, width, height, noc, packing, reverse, eolnPad, blank, status);
+			break;
 
-    case 12:
-      if (size == cineon::kWord)
-        this->fileLoc += WriteBuffer<U16, 12, true>(
-            this->fd, size, data, width, height, noc, packing, reverse, eolnPad,
-            blank, status);
-      else
-        this->fileLoc += WriteBuffer<U16, 12, false>(
-            this->fd, size, data, width, height, noc, packing, reverse, eolnPad,
-            blank, status);
-      break;
+		case 10:
+			// are the channels stored in reverse
+			/*if (this->header.ImageDescriptor(element) == kRGB && this->header.DatumSwap(element) && bitDepth == 10)
+				reverse = true;*/
 
-    case 16:
-      if (size == cineon::kWord)
-        this->fileLoc += WriteBuffer<U16, 16, true>(
-            this->fd, size, data, width, height, noc, packing, reverse, eolnPad,
-            blank, status);
-      else
-        this->fileLoc += WriteBuffer<U16, 16, false>(
-            this->fd, size, data, width, height, noc, packing, reverse, eolnPad,
-            blank, status);
-      break;
+			if (size == cineon::kWord)
+				this->fileLoc += WriteBuffer<U16, 10, true>(this->fd, size, data, width, height, noc, packing, reverse, eolnPad, blank, status);
+			else
+				this->fileLoc += WriteBuffer<U16, 10, false>(this->fd, size, data, width, height, noc, packing, reverse, eolnPad, blank, status);
+			break;
 
-    default:
-      return false;
-    }
-  }
+		case 12:
+			if (size == cineon::kWord)
+				this->fileLoc += WriteBuffer<U16, 12, true>(this->fd, size, data, width, height, noc, packing, reverse, eolnPad, blank, status);
+			else
+				this->fileLoc += WriteBuffer<U16, 12, false>(this->fd, size, data, width, height, noc, packing, reverse, eolnPad, blank, status);
+			break;
 
-  // if successful
-  if (status && eoimPad) {
-    // end of image padding
-    this->fileLoc += eoimPad;
-    status = (this->fd->Write(blank, eoimPad) > 0);
-  }
+		case 16:
+			if (size == cineon::kWord)
+				this->fileLoc += WriteBuffer<U16, 16, true>(this->fd, size, data, width, height, noc, packing, reverse, eolnPad, blank, status);
+			else
+				this->fileLoc += WriteBuffer<U16, 16, false>(this->fd, size, data, width, height, noc, packing, reverse, eolnPad, blank, status);
+			break;
 
-  // rid of memory
-  if (blank)
-    delete[] blank;
+        default:
+            return false;
+		}
+	}
 
-  return status;
+	// if successful
+	if (status && eoimPad)
+	{
+		// end of image padding
+		this->fileLoc += eoimPad;
+		status = (this->fd->Write(blank, eoimPad) > 0);
+	}
+
+	// rid of memory
+	if (blank)
+		delete [] blank;
+
+	return status;
 }
+
 
 // the passed in image buffer is written to the file untouched
 
-bool cineon::Writer::WriteThrough(void *data, const U32 width, const U32 height,
-                                  const int noc, const int bytes,
-                                  const U32 eolnPad, const U32 eoimPad,
-                                  char *blank) {
-  bool status = true;
-  const int count = width * height * noc;
-  unsigned int i;
-  unsigned char *imageBuf = reinterpret_cast<unsigned char *>(data);
+bool cineon::Writer::WriteThrough(void *data, const U32 width, const U32 height, const int noc, const int bytes, const U32 eolnPad, const U32 eoimPad, char *blank)
+{
+	bool status = true;
+	const int count = width * height * noc;
+	unsigned int i;
+	unsigned char *imageBuf = reinterpret_cast<unsigned char*>(data);
 
-  // file pointer location after write
-  this->fileLoc += bytes * count + (eolnPad * height);
+	// file pointer location after write
+	this->fileLoc += bytes * count + (eolnPad * height);
 
-  // write data
-  if (eolnPad) {
-    // loop if have end of line padding
-    for (i = 0; i < height; i++) {
-      // write one line
-      if (this->fd->Write(imageBuf + (width * bytes * i), bytes * width) ==
-          false) {
-        status = false;
-        break;
-      }
+	// write data
+	if (eolnPad)
+	{
+		// loop if have end of line padding
+		for (i = 0; i < height; i++)
+		{
+			// write one line
+			if (this->fd->Write(imageBuf+(width*bytes*i), bytes * width) == false)
+			{
+				status = false;
+				break;
+			}
 
-      // write end of line padding
-      if (this->fd->Write(blank, eoimPad) == false) {
-        status = false;
-        break;
-      }
-    }
-  } else {
-    // write data as one chunk
-    if (this->fd->Write(imageBuf, bytes * count) == false) {
-      status = false;
-    }
-  }
+			// write end of line padding
+			if (this->fd->Write(blank, eoimPad) == false)
+			{
+				status = false;
+				break;
+			}
+		}
+	}
+	else
+	{
+		// write data as one chunk
+		if (this->fd->Write(imageBuf, bytes * count) == false)
+		{
+			status = false;
+		}
+	}
 
-  // end of image padding
-  if (status && eoimPad) {
-    this->fileLoc += eoimPad;
-    status = (this->fd->Write(blank, eoimPad) > 0);
-  }
+	// end of image padding
+	if (status && eoimPad)
+	{
+		this->fileLoc += eoimPad;
+		status = (this->fd->Write(blank, eoimPad) > 0);
+	}
 
-  return status;
+	return status;
 }
 
-bool cineon::Writer::Finish() {
-  // write the file size in the header
-  this->header.SetFileSize(this->fileLoc);
 
-  // rewrite all of the offsets in the header
-  return this->header.WriteOffsetData(this->fd);
+
+
+bool cineon::Writer::Finish()
+{
+	// write the file size in the header
+	this->header.SetFileSize(this->fileLoc);
+
+	// rewrite all of the offsets in the header
+	return this->header.WriteOffsetData(this->fd);
 }
+
+
+
+

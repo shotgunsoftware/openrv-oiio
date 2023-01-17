@@ -32,6 +32,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 #include <cstdio>
 
 #include <OpenImageIO/filesystem.h>
@@ -40,64 +41,89 @@
 
 namespace cineon {
 
-InStream::InStream() : fp(0) {}
-
-InStream::~InStream() {}
-
-bool InStream::Open(const char *f) {
-  if (this->fp)
-    this->Close();
-  if ((this->fp = OIIO::Filesystem::fopen(f, "rb")) == 0)
-    return false;
-
-  return true;
+InStream::InStream() : fp(0)
+{
 }
 
-void InStream::Close() {
-  if (this->fp) {
-    ::fclose(this->fp);
-    this->fp = 0;
-  }
+
+InStream::~InStream()
+{
 }
 
-void InStream::Rewind() {
-  if (this->fp)
-    ::rewind(fp);
+
+bool InStream::Open(const char *f)
+{
+	if (this->fp)
+		this->Close();
+	if ((this->fp = OIIO::Filesystem::fopen(f, "rb")) == 0)
+		return false;
+
+	return true;
 }
 
-bool InStream::Seek(long offset, Origin origin) {
-  int o = 0;
-  switch (origin) {
-  case kCurrent:
-    o = SEEK_CUR;
-    break;
-  case kEnd:
-    o = SEEK_END;
-    break;
-  case kStart:
-    o = SEEK_SET;
-    break;
-  }
 
-  if (this->fp == 0)
-    return -1;
-  return (::fseek(this->fp, offset, o) == 0);
+void InStream::Close()
+{
+	if (this->fp)
+	{
+		::fclose(this->fp);
+		this->fp = 0;
+	}
 }
 
-size_t InStream::Read(void *buf, const size_t size) {
-  if (this->fp == 0)
-    return 0;
-  return ::fread(buf, 1, size, this->fp);
+
+void InStream::Rewind()
+{
+	if (this->fp)
+		::rewind(fp);
 }
 
-size_t InStream::ReadDirect(void *buf, const size_t size) {
-  return this->Read(buf, size);
+
+bool InStream::Seek(long offset, Origin origin)
+{
+	int o = 0;
+	switch (origin)
+	{
+	case kCurrent:
+		o = SEEK_CUR;
+		break;
+	case kEnd:
+		o = SEEK_END;
+		break;
+	case kStart:
+		o = SEEK_SET;
+		break;
+	}
+
+	if (this->fp == 0)
+		return -1;
+	return (::fseek(this->fp, offset, o) == 0);
 }
 
-bool InStream::EndOfFile() const {
-  if (this->fp == 0)
-    return true;
-  return ::feof(this->fp);
+
+
+size_t InStream::Read(void *buf, const size_t size)
+{
+	if (this->fp == 0)
+		return 0;
+	return ::fread(buf, 1, size, this->fp);
 }
 
-} // namespace cineon
+
+size_t InStream::ReadDirect(void *buf, const size_t size)
+{
+	return this->Read(buf, size);
+}
+
+
+bool InStream::EndOfFile() const
+{
+	if (this->fp == 0)
+		return true;
+	return ::feof(this->fp);
+}
+
+}
+
+
+
